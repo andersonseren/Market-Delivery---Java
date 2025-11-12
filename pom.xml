@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.7</version>
+		<version>3.4.11</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
+	<groupId>com.proyecto</groupId>
 	<artifactId>MarketDelivery</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>MarketDelivery</name>
-	<description>Proyecto Market Delivery - Java</description>
+	<description>Proyecto Market Delivery</description>
 	<url/>
 	<licenses>
 		<license/>
