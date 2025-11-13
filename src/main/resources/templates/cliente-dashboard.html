@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Panel Cliente</title>
+</head>
+<body>
+    <h1 th:text="${titulo}">Panel del Cliente</h1>
+    <p>🛒 Aquí puedes realizar compras y consultar tu historial de pedidos.</p>
+
+    <a th:href="@{/home}">Volver al Inicio</a> |
+    <a th:href="@{/logout}">Cerrar Sesión</a>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Panel Emprendedor</title>
+</head>
+<body>
+    <h1 th:text="${titulo}">Panel del Emprendedor</h1>
+    <p>💼 Aquí puedes registrar productos o servicios, y consultar tus ventas.</p>
+
+    <a th:href="@{/home}">Volver al Inicio</a> |
+    <a th:href="@{/logout}">Cerrar Sesión</a>
+</body>
+</html>
