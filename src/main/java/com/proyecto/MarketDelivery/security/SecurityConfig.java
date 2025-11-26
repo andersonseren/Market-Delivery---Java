@@ -16,40 +16,26 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                // Recursos públicos
                 .requestMatchers("/login", "/css/**", "/js/**", "/img/**").permitAll()
-
-                // Endpoints protegidos por rol
                 .requestMatchers("/admin/**").hasRole("ADMINISTRADOR")
                 .requestMatchers("/emprendedor/**").hasRole("EMPRENDEDOR")
                 .requestMatchers("/cliente/**").hasRole("CLIENTE")
-
-                // Cualquier usuario autenticado puede acceder al home y perfil
+                .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")  // Protección agregada
                 .requestMatchers("/home", "/perfil/**").authenticated()
-
-                // Todo lo demás requiere autenticación
                 .anyRequest().authenticated()
             )
-
-            // Formulario de login
             .formLogin(form -> form
-                .loginPage("/login")                // página personalizada
-                .defaultSuccessUrl("/home", true)   // redirige al home tras login
+                .loginPage("/login")
+                .defaultSuccessUrl("/home", true)
                 .permitAll()
             )
-
-            // Logout
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
             )
-
-            // Manejo de excepciones
             .exceptionHandling(exception -> exception
                 .accessDeniedPage("/access-denied")
             )
-
-            // Gestión de sesión
             .sessionManagement(session -> session
                 .invalidSessionUrl("/login?expired")
                 .maximumSessions(1)

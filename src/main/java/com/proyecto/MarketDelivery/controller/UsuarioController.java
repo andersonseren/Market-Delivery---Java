@@ -2,12 +2,15 @@ package com.proyecto.MarketDelivery.controller;
 
 import com.proyecto.MarketDelivery.model.Usuario;
 import com.proyecto.MarketDelivery.repository.UsuarioRepository;
+import com.proyecto.MarketDelivery.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.List;
 
 @Controller
 public class UsuarioController {
@@ -15,6 +18,10 @@ public class UsuarioController {
     @Autowired
     private UsuarioRepository repo;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
+    // Métodos del primer controlador (vistas web)
     @GetMapping("/")
     public String redireccionRaiz() {
         return "redirect:/login";
@@ -25,13 +32,13 @@ public class UsuarioController {
         return "login";
     }
 
-    @GetMapping("/home") // Página Principal, Autorización Usuario Logueado! [ADMIN,USER]
+    @GetMapping("/home")
     public String home(Model model, Authentication auth) {
         model.addAttribute("rol", auth.getAuthorities().toString());
         return "home";
     }
 
-    @GetMapping("/usuarios") // Autorización [ADMIN]
+    @GetMapping("/usuarios")
     public String listar(Model model) {
         model.addAttribute("usuarios", repo.findAll());
         return "usuarios";
@@ -47,8 +54,7 @@ public class UsuarioController {
     public String guardar(@ModelAttribute Usuario usuario) {
         usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
         repo.save(usuario);
-
-              return "redirect:/usuarios";
+        return "redirect:/usuarios";
     }
 
     @GetMapping("/usuarios/editar/{id}")
@@ -63,28 +69,60 @@ public class UsuarioController {
         return "redirect:/usuarios";
     }
 
-    // Autorización [USER]
-    // metodos GET para que el usuario normal "USER" pueda editar su perfil
     @GetMapping("/perfil")
     public String perfil(Model model, Authentication auth) {
-        String username = auth.getName(); // nombre de usuario autenticado
+        String username = auth.getName();
         Usuario usuario = repo.findByUserName(username).orElseThrow();
         model.addAttribute("usuario", usuario);
         return "form";
     }
 
-    // metodos POST
     @PostMapping("/perfil/guardar")
     public String guardarPerfil(@ModelAttribute Usuario usuario, Authentication auth) {
         String username = auth.getName();
         Usuario actual = repo.findByUserName(username).orElseThrow();
-
         actual.setUserName(usuario.getUserName());
         actual.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
         repo.save(actual);
         return "redirect:/home?actualizado";
-
     }
 
+    // Métodos fusionados del segundo controlador (endpoints REST, protegidos)
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @GetMapping("/api/usuarios")
+    @ResponseBody
+    public List<Usuario> listarUsuarios() {
+        return usuarioService.listarUsuarios();
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @GetMapping("/api/usuarios/{id}")
+    @ResponseBody
+    public Usuario obtenerUsuario(@PathVariable Long id) {
+        return usuarioService.obtenerUsuarioPorId(id);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PostMapping("/api/usuarios")
+    @ResponseBody
+    public Usuario guardarUsuario(@RequestBody Usuario usuario) {
+        usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
+        return usuarioService.guardarUsuario(usuario);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PutMapping("/api/usuarios/{id}")
+    @ResponseBody
+    public Usuario actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
+        return usuarioService.actualizarUsuario(id, usuario);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @DeleteMapping("/api/usuarios/{id}")
+    @ResponseBody
+    public void eliminarUsuario(@PathVariable Long id) {
+        usuarioService.eliminarUsuario(id);
+    }
 }
-  
+
+

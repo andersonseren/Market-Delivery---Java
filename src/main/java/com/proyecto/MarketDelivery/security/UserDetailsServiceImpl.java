@@ -1,4 +1,4 @@
- package com.proyecto.MarketDelivery.security;
+package com.proyecto.MarketDelivery.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -11,7 +11,6 @@ import java.util.Collections;
 import com.proyecto.MarketDelivery.model.Usuario;
 import com.proyecto.MarketDelivery.repository.UsuarioRepository;
 
-// Módulo: Servicio de autenticación    
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -20,16 +19,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        // Buscar el usuario en la base de datos
         Usuario usuario = usuarioRepository.findByUserName(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
-        // Crea un objeto Authentication y lo guarda en el SecurityContext.
-        // A partir de aquí, cada petición del usuario ya está autenticada.
         return new User(
                 usuario.getUserName(),
                 usuario.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRol())));
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre())));
     }
 }
+
