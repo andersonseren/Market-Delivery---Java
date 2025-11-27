@@ -21,7 +21,9 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // Métodos del primer controlador (vistas web)
+    // -----------------------------
+    //  RUTAS DE AUTENTICACIÓN BÁSICA
+    // -----------------------------
     @GetMapping("/")
     public String redireccionRaiz() {
         return "redirect:/login";
@@ -38,6 +40,9 @@ public class UsuarioController {
         return "home";
     }
 
+    // -----------------------------
+    // CRUD USUARIOS (VISTAS THYMELEAF)
+    // -----------------------------
     @GetMapping("/usuarios")
     public String listar(Model model) {
         model.addAttribute("usuarios", repo.findAll());
@@ -69,6 +74,9 @@ public class UsuarioController {
         return "redirect:/usuarios";
     }
 
+    // -----------------------------
+    // PERFIL DE USUARIO AUTENTICADO
+    // -----------------------------
     @GetMapping("/perfil")
     public String perfil(Model model, Authentication auth) {
         String username = auth.getName();
@@ -87,7 +95,30 @@ public class UsuarioController {
         return "redirect:/home?actualizado";
     }
 
-    // Métodos fusionados del segundo controlador (endpoints REST, protegidos)
+    // -----------------------------
+    // DASHBOARDS POR ROL
+    // -----------------------------
+    @GetMapping("/admin/dashboard")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public String adminDashboard() {
+        return "admin-dashboard";
+    }
+
+    @GetMapping("/emprendedor/dashboard")
+    @PreAuthorize("hasRole('EMPRENDEDOR')")
+    public String emprendedorDashboard() {
+        return "emprendedor-dashboard";
+    }
+
+    @GetMapping("/cliente/dashboard")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public String clienteDashboard() {
+        return "cliente-dashboard";
+    }
+
+    // -----------------------------
+    // ENDPOINTS REST PARA API (ADMIN)
+    // -----------------------------
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/api/usuarios")
     @ResponseBody
@@ -124,5 +155,3 @@ public class UsuarioController {
         usuarioService.eliminarUsuario(id);
     }
 }
-
-
